@@ -2,6 +2,8 @@ import * as vscode from 'vscode';
 
 import { defaultProvider } from '@aws-sdk/credential-provider-node';
 import { STS } from '@aws-sdk/client-sts';
+import { SSO } from '@aws-sdk/client-sso';
+import { resolve } from 'dns';
 
 function promptForMFAIfRequired(serial: string): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -21,6 +23,26 @@ export function GetAWSCreds(): Thenable<any> {
         let extensionConfig = vscode.workspace.getConfiguration('awscloudshell');
         let awsregion = extensionConfig.get('region');
         let assumeRole = extensionConfig.get('assumeRole');
+        let sso = extensionConfig.get('sso');
+        let ssoRegion = extensionConfig.get('ssoRegion');
+
+        if (sso && ssoRegion) {
+
+            const ssoClient = new SSO({ region: ssoRegion.toString() });
+
+            // TODO sso oidc flow with
+            // region + start_url + account_id + role_name
+            // which will give us the inputs to getRoleCredentials.
+            let role_name, account_id, access_token;
+            let roleCreds = ssoClient.getRoleCredentials({ roleName: role_name, accountId: account_id, accessToken: access_token});
+
+            resolve({
+                'accessKey': (await roleCreds).roleCredentials.accessKeyId,
+                'secretKey': (await roleCreds).roleCredentials.secretAccessKey,
+                'sessionToken': (await roleCreds).roleCredentials.sessionToken
+            });
+            return;
+        }
 
         let creds = await defaultProvider({
             profile: extensionConfig.get('profile') || null,

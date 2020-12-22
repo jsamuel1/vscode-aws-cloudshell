@@ -114,6 +114,16 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Enable upload file menu option from Explorer view."
+                },
+                "awscloudshell.sso": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable AWS SSO login."
+                },
+                "awscloudshell.ssoRegion": {
+                    "type": "string",
+                    "default": "us-east-1",
+                    "description": "The AWS SSO Endpoint region."
                 }
             }
         }
@@ -133,6 +143,7 @@
         "typescript": "^4.0.2"
     },
     "dependencies": {
+        "@aws-sdk/client-sso": "^3.0.0",
         "@aws-sdk/client-sts": "^3.0.0",
         "@aws-sdk/credential-provider-node": "^3.0.0",
         "@aws-sdk/credential-provider-process": "^3.0.0",
